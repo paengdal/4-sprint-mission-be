@@ -50,12 +50,10 @@ function asyncHandler(handler) {
 app.post(
   '/products',
   asyncHandler(async (req, res) => {
-    console.log('dkfk');
     assert(req.body, CreateProduct);
     const newProduct = await prisma.product.create({
       data: req.body,
     });
-    console.log('prisma');
     res.status(201).send(newProduct);
   })
 );
@@ -64,20 +62,12 @@ app.post(
 app.get(
   '/products/:id',
   asyncHandler(async (req, res) => {
-    const id = req.params.id;
-    const product = await Product.findById(id, {
-      name: 1,
-      price: 1,
-      createdAt: 1,
-      tags: 1,
-      description: 1,
+    const { id } = req.params;
+    const product = await prisma.product.findUniqueOrThrow({
+      where: { id },
+      select: { id: true, name: true, price: true, tags: true, description: true, createdAt: true },
     });
-
-    if (product) {
-      res.send(product);
-    } else {
-      res.status(404).send({ message: '해당 id의 상품을 찾을 수 없습니다.' });
-    }
+    res.send(product);
   })
 );
 
@@ -85,36 +75,21 @@ app.get(
 app.get(
   '/products',
   asyncHandler(async (req, res) => {
-    /**
-     * 쿼리 파라미터
-     * - sort: 최신(recent), 좋아요(favorite)
-     * - offset: 건너뛸 개수
-     * - keyword: 검색어
-     * - limit: 갖고 올 데이터 개수
-     */
-    const sort = req.query.sort;
-    const offset = req.query.offset;
-    const search = req.query.keyword;
-    const limit = req.query.limit;
-    const count = limit || 0;
+    const { sort = 'recent', offset = 0, limit = 10, keyword } = req.query;
 
     // sort에 따라 최신순, 좋아요순 결정
-    const sortOption = sort === 'recent' ? { createdAt: 'desc' } : { favoriteCount: 'desc' };
+    const orderBy = sort === 'recent' ? { createdAt: 'desc' } : { favoriteCount: 'desc' };
+    const where = keyword
+      ? { OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }] }
+      : {};
 
-    const products = await Product.find(
-      search
-        ? {
-            $or: [
-              { name: { $regex: `${search}`, $options: 'i' } },
-              { description: { $regex: `${search}`, $options: 'i' } },
-            ],
-          }
-        : {},
-      { name: 1, price: 1, createdAt: 1, favoriteCount: 1 }
-    )
-      .sort(sortOption)
-      .skip(offset)
-      .limit(count);
+    const products = await prisma.product.findMany({
+      select: { id: true, name: true, price: true, createdAt: true },
+      orderBy,
+      skip: parseInt(offset),
+      take: parseInt(limit),
+      where,
+    });
     /**
      * collection의 전체 document 개수 받아오기
      * - pagination 구현에 필요
@@ -122,16 +97,8 @@ app.get(
      */
     // const totalCount = await Product.count();
     // offset, limit이 반영되지 않은 전체 검색 결과 개수
-    const searchCount = await Product.count(
-      search
-        ? {
-            $or: [
-              { name: { $regex: `${search}`, $options: 'i' } },
-              { description: { $regex: `${search}`, $options: 'i' } },
-            ],
-          }
-        : {}
-    );
+    const searchCount = await prisma.product.count({ where });
+
     const finalData = {
       // totalCount: totalCount,
       searchCount: searchCount,
@@ -145,18 +112,10 @@ app.get(
 app.patch(
   '/products/:id',
   asyncHandler(async (req, res) => {
+    assert(req.body, PatchProduct);
     const id = req.params.id;
-    const product = await Product.findById(id);
-
-    if (product) {
-      Object.keys(req.body).forEach((key) => {
-        product[key] = req.body[key];
-      });
-      await product.save();
-      res.status(201).send(product);
-    } else {
-      res.status(404).send({ message: '해당 id의 상품을 찾을 수 없습니다.' });
-    }
+    const product = await prisma.product.update({ where: { id }, data: { ...req.body } });
+    res.send(product);
   })
 );
 
@@ -165,14 +124,8 @@ app.delete(
   '/products/:id',
   asyncHandler(async (req, res) => {
     const id = req.params.id;
-    const product = await Product.findByIdAndDelete(id);
-
-    // 삭제에 성공하면 product, 실패하면 null을 리턴
-    if (product) {
-      res.sendStatus(204);
-    } else {
-      res.status(404).send({ message: '해당 id의 상품을 찾을 수 없습니다.' });
-    }
+    await prisma.product.delete({ where: { id } });
+    res.sendStatus(204);
   })
 );
 
