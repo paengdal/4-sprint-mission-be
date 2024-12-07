@@ -1,12 +1,13 @@
-import mongoose from 'mongoose';
 import express from 'express';
 import * as dotenv from 'dotenv';
 import cors from 'cors';
-import Product from './models/Product.js';
 import bodyParser from 'body-parser';
+import { PrismaClient, Prisma } from '@prisma/client';
+import { assert, create } from 'superstruct';
+import { CreateProduct, PatchProduct, CreateArticle, PatchArticle } from './structs.js';
 
 dotenv.config();
-
+const prisma = new PrismaClient();
 export const app = express();
 app.use(cors());
 // const corsOptions = {
@@ -16,11 +17,9 @@ app.use(cors());
 // 특정 주소에 대해서만 cors 허용. 이게 더 안전함
 app.use(express.json());
 // 앱 전체에서 express.json()을 사용하겠다는 의미
-// req의 content-type이 application/json이면 이를 parsing해서 req body에 js객체로 담아줌)
+// req의 content-type이 application/json이면 이를 parsing해서 req body에 js객체로 담아줌)`
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
-
-mongoose.connect(process.env.DATABASE_URL).then(() => console.log('Connected to DB'));
 
 // 비동기 오류 처리를 위한 함수(하지 않으면 오류 시 서버 자체가 죽어버림)
 function asyncHandler(handler) {
@@ -28,25 +27,36 @@ function asyncHandler(handler) {
     try {
       await handler(req, res);
     } catch (e) {
-      if (e.name === 'ValidationError') {
-        res.status(400).send({ message: e.message });
-      } else if (e.name === 'CastError') {
-        res.status(404).send({ message: '해당 id의 상품을 찾을 수 없습니다.' });
+      if (e.name === 'StructError' || e instanceof Prisma.PrismaClientValidationError) {
+        res.status(400).send({
+          message: e.message,
+        });
+      } else if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') {
+        res.sendStatus(404);
       } else {
-        res.status(500).send({ message: e.message });
+        res.status(500).send({
+          message: e.message,
+        });
       }
     }
   };
 }
 
+/************* 게시글 *************/
+// app.post('/articles', )
+
+/************* 상품 *************/
 // 상품 등록 API
 app.post(
   '/products',
   asyncHandler(async (req, res) => {
-    const newProduct = await Product.create(req.body);
+    console.log('dkfk');
+    assert(req.body, CreateProduct);
+    const newProduct = await prisma.product.create({
+      data: req.body,
+    });
+    console.log('prisma');
     res.status(201).send(newProduct);
-    // eslint-disable-next-line no-restricted-globals
-    // location.replace("/");
   })
 );
 
@@ -166,4 +176,4 @@ app.delete(
   })
 );
 
-app.listen(process.env.PORT || 5500, () => console.log('Server Started'));
+app.listen(process.env.PORT || 3000, () => console.log('Server Started'));
