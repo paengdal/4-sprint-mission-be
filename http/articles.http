@@ -1,0 +1,33 @@
+###
+POST http://localhost:3000/articles
+Content-Type: application/json
+
+{
+  "title":"갤럭시 S40",
+  "content":"쌈송에서 만든 최신 폰"
+}
+
+###
+PATCH  http://localhost:3000/articles/0456b46f-7a18-4211-b7a1-2216f84cc2cb
+Content-Type: application/json
+
+{
+  "content":"쌈송에서 만든 망폰"
+}
+
+###
+GET http://localhost:3000/articles/0456b46f-7a18-4211-b7a1-2216f84cc2cb
+
+###
+GET http://localhost:3000/articles
+
+###
+POST http://localhost:3000/articles/0456b46f-7a18-4211-b7a1-2216f84cc2cb/comments
+Content-Type: application/json
+
+{
+  "content" : "이건 삭제할 댓글입니다."
+}
+
+###
+DELETE  http://localhost:3000/comments/cdd15137-d60a-4f58-8b71-398d802cdaa7

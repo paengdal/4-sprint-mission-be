@@ -1,0 +1,16 @@
+
+PATCH  http://localhost:3000/comments/492cc17e-ae41-4156-9a33-748f76adb7c4
+Content-Type: application/json
+
+{
+  "content":"댓글 수정 테스트"
+}
+
+###
+GET http://localhost:3000/products/comments
+
+###
+GET http://localhost:3000/products/comments?limit=3&cursor=8cbf2c41-8974-412e-8d43-98d4020a7217
+
+###
+GET http://localhost:3000/ariticles/comments
