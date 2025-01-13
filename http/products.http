@@ -1,0 +1,41 @@
+GET http://localhost:3000/products
+
+###
+GET http://localhost:3000/products?sort=recent&keyword=갤럭시
+
+###
+GET http://localhost:3000/products/10f12b65-20f5-43d9-860e-faf4890e2a9e
+
+###
+POST http://localhost:3000/products
+Content-Type: application/json
+
+{
+  "name":"갤럭시 S40",
+  "description":"쌈송에서 만든 최신 폰",
+  "price":990000,
+  "tags":["갤럭시", "삼성"]
+}
+
+###
+PATCH  http://localhost:3000/products/0486722d-02f8-4a40-bdb0-0bfb2dfaeb70
+Content-Type: application/json
+
+{
+  "name":"갤럭시 S50",
+  "price":5400
+}
+
+###
+DELETE  http://localhost:3000/products/b833f160-3ae9-4c23-94c5-f44fcdc73ccc
+
+###
+
+POST http://localhost:3000/products/10f12b65-20f5-43d9-860e-faf4890e2a9e/comments
+Content-Type: application/json
+
+{
+  "content" : "이게 가장 새로운 댓글"
+}
+
+
