@@ -37,4 +37,4 @@ app.use('/', productsRouter);
 app.use('/', articlesRouter);
 app.use('/', commentsRouter);
 
-app.listen(process.env.PORT || 5200, () => console.log('Server Started'));
+app.listen(process.env.PORT || 5500, () => console.log('Server Started'));

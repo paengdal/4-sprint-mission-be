@@ -1,5 +1,5 @@
 ###
-POST http://localhost:5200/articles
+POST http://localhost:5500/articles
 Content-Type: application/json
 
 {
@@ -8,7 +8,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:5200/post
+POST http://localhost:5500/post
 Content-Type: application/json
 
 {
@@ -17,7 +17,7 @@ Content-Type: application/json
 }
 
 ###
-PATCH  http://localhost:5200/articles/8ab7c05d-c252-49e0-a9e0-e5d76ba4b558
+PATCH  http://localhost:5500/articles/8ab7c05d-c252-49e0-a9e0-e5d76ba4b558
 Content-Type: application/json
 
 {
@@ -26,13 +26,13 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:5200/articles/0456b46f-7a18-4211-b7a1-2216f84cc2cb
+GET http://localhost:5500/articles/0456b46f-7a18-4211-b7a1-2216f84cc2cb
 
 ###
-GET http://localhost:5200/articles?limit=20
+GET http://localhost:5500/articles?limit=20
 
 ###
-POST http://localhost:5200/articles/0456b46f-7a18-4211-b7a1-2216f84cc2cb/comments
+POST http://localhost:5500/articles/0456b46f-7a18-4211-b7a1-2216f84cc2cb/comments
 Content-Type: application/json
 
 {
@@ -40,7 +40,7 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:5200/articles/comments
+GET http://localhost:5500/articles/comments
 
 ###
-GET http://localhost:5200/comments/products
+GET http://localhost:5500/comments/products
