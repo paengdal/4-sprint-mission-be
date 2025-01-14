@@ -17,10 +17,12 @@ function asyncHandler(handler) {
         e instanceof Prisma.PrismaClientKnownRequestError &&
         e.code === 'P2025'
       ) {
-        res.sendStatus(404);
+        res.status(404).send({
+          message: e.message,
+        });
       } else {
         res.status(500).send({
-          message: e.message,
+          message: e.message + ' - Internal Server Error',
         });
       }
     }
