@@ -1,4 +1,4 @@
-GET http://localhost:5500/products?limit=3
+GET http://localhost:5500/products?limit=3&sort=earliest
 
 ###
 GET http://localhost:5500/products?keyword=아이폰
@@ -8,6 +8,17 @@ GET http://localhost:5500/products/10f12b65-20f5-43d9-860e-faf4890e2a9e
 
 ###
 POST http://localhost:5500/products
+Content-Type: application/json
+
+{
+  "name":"갤럭시 S40",
+  "description":"쌈송에서 만든 최신 폰",
+  "price":990000,
+  "tags":["갤럭시", "삼성"]
+}
+
+###
+POST https://four-sprint-mission-be.onrender.com/products
 Content-Type: application/json
 
 {

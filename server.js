@@ -12,7 +12,7 @@ import {
   CreateComment,
   PatchComment,
 } from './structs.js';
-import productsRouter from './routes/product.js';
+import productsRouter from './routes/products.js';
 import articlesRouter from './routes/articles.js';
 import commentsRouter from './routes/comments.js';
 // import asyncHandler from './controllers/asyncHandler.js';

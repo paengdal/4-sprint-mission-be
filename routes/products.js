@@ -51,7 +51,7 @@ router.get(
 
     // sort에 따라 최신순, 좋아요순 결정
     const orderBy =
-      sort === 'latest' ? { createdAt: 'desc' } : { favoriteCount: 'desc' };
+      sort === 'latest' ? { createdAt: 'desc' } : { createdAt: 'asc' };
     const where = keyword
       ? {
           OR: [

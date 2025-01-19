@@ -46,7 +46,7 @@ router.delete(
 router.get(
   '/articles',
   asyncHandler(async (req, res) => {
-    const { sort = 'latest', skip = 0, limit = 5, keyword } = req.query;
+    const { sort = 'latest', skip = 0, limit, keyword } = req.query;
 
     // sort에 따라 최신순, 좋아요순 결정
     const orderBy =
@@ -64,10 +64,13 @@ router.get(
       select: { id: true, title: true, content: true, createdAt: true },
       orderBy,
       skip: parseInt(skip),
-      take: parseInt(limit),
+      take: limit ? parseInt(limit) : undefined,
       where,
     });
-    res.send(articles);
+    const totalCount = await prisma.article.count();
+    const pageCount = Math.ceil(totalCount / limit);
+    const page = skip / limit + 1;
+    res.send({ page, totalCount, pageCount, articles });
   })
 );
 
