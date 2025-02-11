@@ -4,13 +4,15 @@
   "private": true,
   "dependencies": {
     "@prisma/client": "^5.4.2",
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "is-email": "^1.0.2",
     "is-uuid": "^1.0.2",
-    "prisma": "^5.4.2",
-    "superstruct": "^1.0.3"
+    "jsonwebtoken": "^9.0.2",
+    "superstruct": "^1.0.3",
+    "validator": "^13.12.0"
   },
   "scripts": {
     "start": "node server.js",
@@ -23,7 +25,14 @@
     ]
   },
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.8",
+    "@types/node": "^22.13.1",
+    "@types/validator": "^13.12.2",
+    "nodemon": "^3.1.7",
+    "prisma": "^6.3.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
   },
   "type": "module",
   "prisma": {

@@ -1,9 +1,10 @@
-import * as s from 'superstruct';
 import isUuid from 'is-uuid';
+import * as s from 'superstruct';
 
 const Uuid = s.define('Uuid', (value) => isUuid.v4(value));
 
 export const CreateProduct = s.object({
+  writer: s.size(s.string(), 1, 30),
   name: s.size(s.string(), 1, 20),
   description: s.size(s.string(), 10, 100),
   price: s.min(s.integer(), 1),
@@ -14,12 +15,14 @@ export const PatchProduct = s.partial(CreateProduct);
 
 export const CreateArticle = s.object({
   title: s.size(s.string(), 1, 30),
+  writer: s.size(s.string(), 1, 30),
   content: s.size(s.string(), 10, 500),
 });
 
 export const PatchArticle = s.partial(CreateArticle);
 
 export const CreateComment = s.object({
+  writer: s.size(s.string(), 1, 30),
   content: s.size(s.string(), 1, 200),
 });
 
