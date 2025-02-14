@@ -9,6 +9,7 @@ export const CreateProduct = s.object({
   description: s.size(s.string(), 10, 100),
   price: s.min(s.integer(), 1),
   tags: s.size(s.array(s.size(s.string(), 1, 5)), 1, Infinity), // 배열의 길이가 1이상 infinity
+  imgUrls: s.size(s.array(s.size(s.string(), 1, 100)), 1, 3), // 배열의 길이가 1이상 3개까지
 });
 
 export const PatchProduct = s.partial(CreateProduct);

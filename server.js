@@ -2,12 +2,14 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
 import express from 'express';
-import authentication from './controllers/authentication.js';
-import articlesRouter from './routes/articles.js';
-import commentsRouter from './routes/comments.js';
-import productsRouter from './routes/products.js';
-import usersRouter from './routes/users.js';
-// import asyncHandler from './controllers/asyncHandler.js';
+import swaggerUi from 'swagger-ui-express';
+import authentication from './middleware/authentication.middleware.js';
+import errorHandler from './middleware/errorHandler.middleware.js';
+import articlesRouter from './routes/articles.routes.js';
+import commentsRouter from './routes/comments.routes.js';
+import productsRouter from './routes/products.routes.js';
+import usersRouter from './routes/users.routes.js';
+import swaggerFile from './swagger/swagger-output.json' with { type: 'json' };
 
 dotenv.config();
 export const app = express();
@@ -24,10 +26,19 @@ app.use(authentication);
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use('/static', express.static('public'))
+
 // API 라우팅
 app.use('/products', productsRouter);
 app.use('/articles', articlesRouter);
 app.use('/comments', commentsRouter);
 app.use('/users', usersRouter);
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerFile, { explorer: true })
+);
+
+app.use(errorHandler);
 
 app.listen(process.env.PORT || 5500, () => console.log('Server Started'));

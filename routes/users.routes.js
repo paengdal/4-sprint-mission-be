@@ -11,6 +11,7 @@ const jwtSecretKey = process.env.JWT_SECRET_KEY;
 
 // 전체 유저 조회
 router.get('/', async (req, res, next) => {
+  // #swagger.tags=['User']
   try {
     const users = await prisma.user.findMany();
     res.status(200).json(users);
@@ -21,6 +22,64 @@ router.get('/', async (req, res, next) => {
 
 // 회원가입
 router.post('/sign-up', async (req, res, next) => {
+  /*
+   #swagger.tags = ['User']
+   #swagger.summary = '회원 가입'
+   #swagger.description = '이메일과 닉네임, 비밀번호를 입력받아 회원 가입을 한다'
+   #swagger.security = [{
+       "bearerAuth": []
+   }]
+   #swagger.requestBody = {
+        required: true,
+        content: {
+            "application/json": {
+                schema: {
+                  "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string",
+                        "required": true,
+                        "example": "test@test.com"
+                      },
+                      "nickname": {
+                        "type": "string",
+                        "required": true,
+                        "example": "닉네임"
+                      },
+                      "password": {
+                        "type": "string",
+                        "required": true,
+                        "example": "11111111"
+                      }
+                    }
+                },
+                example: {
+                    "email": "test@test.com",
+                    "nickname": "닉네임",
+                    "password": "11111111"
+                },
+            },
+        }
+    }
+    #swagger.responses[200] = {
+        description: "유저 phone 수정 완료",
+        content: {
+            "application/json": {
+                schema: {
+                    "data": {
+                        "phone": "010-0000-0000",
+                    }
+                },
+                example: {
+                    "data": {
+                        "phone": "010-1111-2222",
+                    }
+                },
+            }
+        }
+    }
+*/
+
   try {
     const { email, nickname, password } = req.body;
 
@@ -40,7 +99,7 @@ router.post('/sign-up', async (req, res, next) => {
 
     const user = await prisma.user.create({
       data: { email, encryptedPassword, nickname, image: 'https://imgae..' },
-      // omit: { encryptedPassword: true },
+      omit: { encryptedPassword: true },
     });
 
     res.status(201).json(user);
