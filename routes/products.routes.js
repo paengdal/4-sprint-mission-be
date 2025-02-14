@@ -1,7 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import express from 'express';
+import { body } from 'express-validator';
 import multer from 'multer';
 import { assert } from 'superstruct';
+import checkValidate from '../middleware/checkValidate.middleware.js';
 import { CreateComment, CreateProduct, PatchProduct } from '../structs.js';
 
 const router = express.Router();
@@ -23,25 +25,40 @@ const upload = multer({ storage: storage });
 const uploadMiddleware = upload.array('imgUrls');
 
 // 상품 등록 API
-router.post('/', uploadMiddleware, async (req, res, next) => {
-  try {
-    const newImgUrls = req.files.map(
-      (file) => 'http://localhost:5500/static/' + file.filename
-    );
-    const arrayTags = req.body.tags.split(',');
-    const intPrice = Number(req.body.price);
-    req.body.imgUrls = newImgUrls;
-    req.body.tags = arrayTags;
-    req.body.price = intPrice;
-    assert(req.body, CreateProduct);
-    const newProduct = await prisma.product.create({
-      data: req.body,
-    });
-    res.status(201).send(newProduct);
-  } catch (error) {
-    next(error);
+router.post(
+  '/',
+  uploadMiddleware,
+  [
+    body('name')
+      .exists()
+      .isLength({ min: 5, max: 20 })
+      .withMessage('상품명은 1-20글자입니다.'),
+    body('description')
+      .exists()
+      .isLength({ min: 10, max: 100 })
+      .withMessage('상품 소개는 10-100글자입니다.'),
+    checkValidate,
+  ],
+  async (req, res, next) => {
+    try {
+      const newImgUrls = req.files.map(
+        (file) => 'http://localhost:5500/static/' + file.filename
+      );
+      const arrayTags = req.body.tags.split(',');
+      const intPrice = Number(req.body.price);
+      req.body.imgUrls = newImgUrls;
+      req.body.tags = arrayTags;
+      req.body.price = intPrice;
+      assert(req.body, CreateProduct);
+      const newProduct = await prisma.product.create({
+        data: req.body,
+      });
+      res.status(201).send(newProduct);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // 상품 수정 API
 router.patch('/:productId', async (req, res, next) => {
