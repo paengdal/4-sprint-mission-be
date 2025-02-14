@@ -51,7 +51,7 @@ router.get('/', async (req, res, next) => {
     const where = keyword
       ? {
           OR: [
-            { title: { contains: keyword } },
+            { title: { contains: keyword, mode: 'insensitive' } },
             { content: { contains: keyword } },
           ],
         }

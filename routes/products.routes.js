@@ -31,7 +31,7 @@ router.post(
   [
     body('name')
       .exists()
-      .isLength({ min: 5, max: 20 })
+      .isLength({ min: 1, max: 20 })
       .withMessage('상품명은 1-20글자입니다.'),
     body('description')
       .exists()
@@ -61,19 +61,42 @@ router.post(
 );
 
 // 상품 수정 API
-router.patch('/:productId', async (req, res, next) => {
-  try {
-    assert(req.body, PatchProduct);
-    const productId = req.params.productId;
-    const product = await prisma.product.update({
-      where: { id: productId },
-      data: { ...req.body },
-    });
-    res.send(product);
-  } catch (error) {
-    next(error);
+router.patch(
+  '/:productId',
+  uploadMiddleware,
+  [
+    body('name')
+      .exists()
+      .isLength({ min: 1, max: 20 })
+      .withMessage('상품명은 1-20글자입니다.'),
+    body('description')
+      .exists()
+      .isLength({ min: 10, max: 100 })
+      .withMessage('상품 소개는 10-100글자입니다.'),
+    checkValidate,
+  ],
+  async (req, res, next) => {
+    try {
+      const newImgUrls = req.files.map(
+        (file) => 'http://localhost:5500/static/' + file.filename
+      );
+      const arrayTags = req.body.tags.split(',');
+      const intPrice = Number(req.body.price);
+      req.body.imgUrls = newImgUrls;
+      req.body.tags = arrayTags;
+      req.body.price = intPrice;
+      assert(req.body, PatchProduct);
+      const productId = req.params.productId;
+      const product = await prisma.product.update({
+        where: { id: productId },
+        data: { ...req.body },
+      });
+      res.status(200).send(product);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // 상품 삭제 API
 router.delete('/:productId', async (req, res, next) => {

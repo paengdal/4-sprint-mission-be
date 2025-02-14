@@ -82,7 +82,7 @@ router.post('/sign-up', async (req, res, next) => {
 
   try {
     const { email, nickname, password } = req.body;
-
+    console.log(req.body);
     if (!validator.isEmail(email)) throw new Error('400/Malformed email');
     if (!validator.isLength(password, { min: 8 }))
       throw new Error('400/Password should be at least 8 characters');
@@ -90,7 +90,9 @@ router.post('/sign-up', async (req, res, next) => {
 
     // 회원가입 로직
     // 1. 이미 가입된 유저인지(email) 확인
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
 
     if (existingUser) throw new Error('400/Already used email');
 
@@ -131,7 +133,7 @@ router.post('/log-in', async (req, res, next) => {
       email: user.email,
       nickname: user.nickname,
     };
-    const accessToken = jwt.sign(payload, jwtSecretKey, { expiresIn: '2h' });
+    const accessToken = jwt.sign(payload, jwtSecretKey, { expiresIn: '10s' });
     const refreshToken = jwt.sign(payload, jwtSecretKey, { expiresIn: '2d' });
 
     const data = { accessToken, refreshToken };
@@ -145,12 +147,12 @@ router.post('/log-in', async (req, res, next) => {
 // 토큰 재발급
 router.post('/refresh-token', async (req, res, next) => {
   try {
-    const { refreshToken: prevRefreshToken } = req.body;
+    const { prevRefreshToken } = req.body;
     const { sub, email, nickname } = jwt.verify(prevRefreshToken, jwtSecretKey);
     // 받아온 payload에서 iat, exp는 제외(있으면 중복값이라 에러 발생)
     const payload = { sub, email, nickname };
 
-    const accessToken = jwt.sign(payload, jwtSecretKey, { expiresIn: '2h' });
+    const accessToken = jwt.sign(payload, jwtSecretKey, { expiresIn: '10s' });
     const refreshToken = jwt.sign(payload, jwtSecretKey, { expiresIn: '2d' });
 
     const data = { accessToken, refreshToken };
@@ -170,7 +172,10 @@ router.post('/refresh-token', async (req, res, next) => {
 router.get('/me', async (req, res, next) => {
   try {
     const userId = req.userId;
-    const me = await prisma.user.findUnique({ where: { id: userId } });
+    const me = await prisma.user.findUnique({
+      where: { id: userId },
+      omit: { encryptedPassword: true },
+    });
 
     res.status(200).json(me);
   } catch (error) {

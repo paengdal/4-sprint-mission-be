@@ -26,6 +26,7 @@ app.use(authentication);
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
+// 이미지 경로 설정
 app.use('/static', express.static('public'))
 
 // API 라우팅
