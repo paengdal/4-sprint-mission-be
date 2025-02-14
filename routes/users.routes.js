@@ -90,7 +90,9 @@ router.post('/sign-up', async (req, res, next) => {
 
     // 회원가입 로직
     // 1. 이미 가입된 유저인지(email) 확인
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findUnique({
+      where: { OR: [{ nickname }, { email }] },
+    });
 
     if (existingUser) throw new Error('400/Already used email');
 
@@ -145,7 +147,7 @@ router.post('/log-in', async (req, res, next) => {
 // 토큰 재발급
 router.post('/refresh-token', async (req, res, next) => {
   try {
-    const { refreshToken: prevRefreshToken } = req.body;
+    const { prevRefreshToken } = req.body;
     const { sub, email, nickname } = jwt.verify(prevRefreshToken, jwtSecretKey);
     // 받아온 payload에서 iat, exp는 제외(있으면 중복값이라 에러 발생)
     const payload = { sub, email, nickname };
@@ -170,7 +172,10 @@ router.post('/refresh-token', async (req, res, next) => {
 router.get('/me', async (req, res, next) => {
   try {
     const userId = req.userId;
-    const me = await prisma.user.findUnique({ where: { id: userId } });
+    const me = await prisma.user.findUnique({
+      where: { id: userId },
+      omit: { encryptedPassword: true },
+    });
 
     res.status(200).json(me);
   } catch (error) {
