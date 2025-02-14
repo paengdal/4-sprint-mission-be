@@ -135,7 +135,9 @@ router.get('/:productId', async (req, res, next) => {
         createdAt: true,
         imgUrls: true,
         _count: { select: { productLikes: true } },
-        comments: { select: { id: true, content: true, createdAt: true } },
+        comments: {
+          select: { id: true, content: true, createdAt: true, updatedAt: true },
+        },
       },
     });
 
