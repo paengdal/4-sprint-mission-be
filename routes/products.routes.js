@@ -189,7 +189,19 @@ router.get('/:productId', async (req, res, next) => {
           .then((value) => !!value)
       : false;
 
-    const newProduct = { ...product, isFavorite };
+    const newProduct = {
+      id: product.id,
+      name: product.name,
+      writer: product.writer,
+      price: product.price,
+      tags: product.tags,
+      description: product.description,
+      createdAt: product.createdAt,
+      imgUrls: product.imgUrls,
+      count: product._count.productLikes.length,
+      comments: product.comments,
+      isFavorite,
+    };
     res.send(newProduct);
   } catch (error) {
     next(error);

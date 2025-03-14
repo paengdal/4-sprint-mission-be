@@ -59,9 +59,11 @@ router.get('/', async (req, res, next) => {
     const articles = await prisma.article.findMany({
       select: {
         id: true,
+        writer: true,
         title: true,
         content: true,
         createdAt: true,
+        updatedAt: true,
         articleLikes: true,
         _count: { select: { articleLikes: true } },
       },
@@ -105,7 +107,10 @@ router.get('/:articleId', async (req, res, next) => {
           .then((value) => !!value)
       : false;
 
-    const newArticle = { ...article, isFavorite };
+    const newArticle = {
+      ...article,
+      isFavorite,
+    };
 
     res.send(newArticle);
   } catch (error) {

@@ -174,7 +174,7 @@ router.get('/me', async (req, res, next) => {
     const userId = req.userId;
     const me = await prisma.user.findUnique({
       where: { id: userId },
-      omit: { encryptedPassword: true },
+      select: { nickname: true },
     });
 
     res.status(200).json(me);
