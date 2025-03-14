@@ -28,17 +28,17 @@ const uploadMiddleware = upload.array('imgUrls');
 router.post(
   '/',
   uploadMiddleware,
-  [
-    body('name')
-      .exists()
-      .isLength({ min: 1, max: 20 })
-      .withMessage('상품명은 1-20글자입니다.'),
-    body('description')
-      .exists()
-      .isLength({ min: 10, max: 100 })
-      .withMessage('상품 소개는 10-100글자입니다.'),
-    checkValidate,
-  ],
+
+  body('name')
+    .exists()
+    .isLength({ min: 1, max: 20 })
+    .withMessage('상품명은 1-20글자입니다.'),
+  body('description')
+    .exists()
+    .isLength({ min: 10, max: 100 })
+    .withMessage('상품 소개는 10-100글자입니다.'),
+  checkValidate,
+
   async (req, res, next) => {
     try {
       const newImgUrls = req.files.map(
@@ -64,22 +64,25 @@ router.post(
 router.patch(
   '/:productId',
   uploadMiddleware,
-  [
-    body('name')
-      .exists()
-      .isLength({ min: 1, max: 20 })
-      .withMessage('상품명은 1-20글자입니다.'),
-    body('description')
-      .exists()
-      .isLength({ min: 10, max: 100 })
-      .withMessage('상품 소개는 10-100글자입니다.'),
-    checkValidate,
-  ],
+
+  body('name')
+    .exists()
+    .isLength({ min: 1, max: 20 })
+    .withMessage('상품명은 1-20글자입니다.'),
+  body('description')
+    .exists()
+    .isLength({ min: 10, max: 100 })
+    .withMessage('상품 소개는 10-100글자입니다.'),
+  checkValidate,
+
   async (req, res, next) => {
     try {
-      const newImgUrls = req.files.map(
-        (file) => 'http://localhost:5500/static/' + file.filename
-      );
+      let newImgUrls; // 타입가드 작성 중
+      if (req.files && req.files.length !== 0) {
+        newImgUrls = req.files.map(
+          (file) => 'http://localhost:5500/static/' + file.filename
+        );
+      }
       const arrayTags = req.body.tags.split(',');
       const intPrice = Number(req.body.price);
       req.body.imgUrls = newImgUrls;

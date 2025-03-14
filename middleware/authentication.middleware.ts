@@ -1,6 +1,7 @@
+import { NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-function authentication(req, res, next) {
+function authentication(req: Request, res: Response, next: NextFunction) {
   if (req.url === '/users/sign-up' || req.url === '/users/log-in')
     return next();
   const authorization = req.headers.authorization;

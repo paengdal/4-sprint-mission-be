@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import express from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import validator from 'validator';
 
 const router = express.Router();
@@ -133,6 +133,7 @@ router.post('/log-in', async (req, res, next) => {
       email: user.email,
       nickname: user.nickname,
     };
+    if (!jwtSecretKey) throw new Error('400/JwtSecretKey not founded');
     const accessToken = jwt.sign(payload, jwtSecretKey, { expiresIn: '10s' });
     const refreshToken = jwt.sign(payload, jwtSecretKey, { expiresIn: '2d' });
 
@@ -148,7 +149,11 @@ router.post('/log-in', async (req, res, next) => {
 router.post('/refresh-token', async (req, res, next) => {
   try {
     const { prevRefreshToken } = req.body;
-    const { sub, email, nickname } = jwt.verify(prevRefreshToken, jwtSecretKey);
+    if (!jwtSecretKey) throw new Error('400/JwtSecretKey not founded');
+    const { sub, email, nickname } = jwt.verify(
+      prevRefreshToken,
+      jwtSecretKey
+    ) as JwtPayload;
     // 받아온 payload에서 iat, exp는 제외(있으면 중복값이라 에러 발생)
     const payload = { sub, email, nickname };
 
