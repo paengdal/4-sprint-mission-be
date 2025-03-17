@@ -1,15 +1,18 @@
 import bodyParser from 'body-parser';
+// import cors from 'node';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
 import express from 'express';
-import swaggerUi from 'swagger-ui-express';
-import authentication from './middleware/authentication.middleware.js';
-import errorHandler from './middleware/errorHandler.middleware.js';
-import articlesRouter from './routes/articles.routes.js';
-import commentsRouter from './routes/comments.routes.js';
-import productsRouter from './routes/products.routes.js';
-import usersRouter from './routes/users.routes.js';
-import swaggerFile from './swagger/swagger-output.json' with { type: 'json' };
+// import swaggerUi from 'swagger-ui-express';
+// import authentication from './middleware/authentication.middleware';
+// import errorHandler from './middleware/errorHandler.middleware';
+import authentication from './middleware/authentication.middleware';
+import errorHandler from './middleware/errorHandler.middleware';
+import articlesRouter from './routes/articles.routes';
+import commentsRouter from './routes/comments.routes';
+import productsRouter from './routes/products.routes';
+import usersRouter from './routes/users.routes';
+// import swaggerFile from './swagger/swagger-output.json';
 
 dotenv.config();
 export const app = express();
@@ -27,18 +30,18 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
 // 이미지 경로 설정
-app.use('/static', express.static('public'))
+app.use('/static', express.static('public'));
 
 // API 라우팅
 app.use('/products', productsRouter);
 app.use('/articles', articlesRouter);
 app.use('/comments', commentsRouter);
 app.use('/users', usersRouter);
-app.use(
-  '/api-docs',
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerFile, { explorer: true })
-);
+// app.use(
+//   '/api-docs',
+//   swaggerUi.serve,
+//   swaggerUi.setup(swaggerFile, { explorer: true })
+// );
 
 app.use(errorHandler);
 

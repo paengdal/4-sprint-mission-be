@@ -32,7 +32,6 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.0",
     "@types/is-uuid": "^1.0.2",
     "@types/jsonwebtoken": "^9.0.8",
     "@types/multer": "^1.4.12",

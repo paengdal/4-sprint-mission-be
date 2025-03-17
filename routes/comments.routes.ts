@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import express from 'express';
 import { assert } from 'superstruct';
-import { PatchComment } from '../structs.js';
+import { PatchComment } from '../structs';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -84,9 +84,9 @@ router.get('/', async (req, res, next) => {
 router.patch('/:commentId', async (req, res, next) => {
   try {
     assert(req.body, PatchComment);
-    const { id: commentId } = req.params;
+    const id = req.params.commentId;
     const comment = await prisma.comment.update({
-      where: { id: commentId },
+      where: { id },
       data: req.body,
     });
     res.send(comment);

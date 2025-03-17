@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import express from 'express';
 import { assert } from 'superstruct';
-import { CreateArticle, CreateComment, PatchArticle } from '../structs.js';
+import { CreateArticle, CreateComment, PatchArticle } from '../structs';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -46,9 +46,13 @@ router.delete('/:articleId', async (req, res, next) => {
 // 게시글 목록 조회 API
 router.get('/', async (req, res, next) => {
   try {
-    const { sort = 'latest', skip = 0, limit = 5, keyword } = req.query;
+    // const { sort= 'latest', skip = 0, limit = 5, keyword } = req.query;
+    const sort = (req.query.sort || 'latest') as string;
+    const skip = (req.query.skip || '0') as string;
+    const limit = (req.query.limit || '5') as string;
+    const keyword = req.query.keyword as string;
 
-    const where = keyword
+    const where: Prisma.ArticleWhereInput = keyword
       ? {
           OR: [
             { title: { contains: keyword, mode: 'insensitive' } },
@@ -144,21 +148,28 @@ router.post('/:articleId/comments', async (req, res, next) => {
 router.get('/:articleId/comments', async (req, res, next) => {
   try {
     const { articleId } = req.params;
-    const { cursor, limit = 10 } = req.query;
-    const cursorOption =
-      cursor && cursor !== ''
-        ? {
-            skip: 1,
-            cursor: {
-              id: cursor,
-            },
-          }
-        : {};
+    // const articleId = req.params.articleId as string;
+    // const { cursor, limit = 10 } = req.query;
+    const cursor = req.query.cursor as string;
+    const limit = req.query.limit as string;
+    // const cursorOption =
+    //   cursor && cursor !== ''
+    //     ? {
+    //         skip: 1,
+    //         cursor: {
+    //           id: cursor,
+    //         },
+    //       }
+    //     : {};
+    const skip: number = cursor && cursor !== '' ? 1 : 0;
+    const cursorOption: Prisma.CommentWhereUniqueInput =
+      cursor && cursor !== '' ? { id: cursor } : { id: undefined };
     const comments = await prisma.comment.findMany({
       where: { articleId },
       take: parseInt(limit),
       orderBy: { createdAt: 'desc' },
-      ...cursorOption,
+      skip,
+      cursor: cursorOption,
     });
     // nextCursor 설정
     let nextCursor;
@@ -166,7 +177,7 @@ router.get('/:articleId/comments', async (req, res, next) => {
     if (cursor) {
       const lastComment = comments[comments.length - 1];
       nextCursor = lastComment.id;
-      isLastPage = limit > comments.length;
+      isLastPage = parseInt(limit) > comments.length;
     }
     // 최종적으로 cursor와 comments 전달
     const finalData = isLastPage

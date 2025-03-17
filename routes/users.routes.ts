@@ -176,12 +176,14 @@ router.post('/refresh-token', async (req, res, next) => {
 // 내 정보 조회
 router.get('/me', async (req, res, next) => {
   try {
+    console.log('do back getMe');
     const userId = req.userId;
+    console.log('userId', userId);
     const me = await prisma.user.findUnique({
       where: { id: userId },
       select: { nickname: true },
     });
-
+    console.log(me);
     res.status(200).json(me);
   } catch (error) {
     next(error);

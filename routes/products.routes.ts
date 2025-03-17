@@ -1,10 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import express from 'express';
 import { body } from 'express-validator';
 import multer from 'multer';
 import { assert } from 'superstruct';
-import checkValidate from '../middleware/checkValidate.middleware.js';
-import { CreateComment, CreateProduct, PatchProduct } from '../structs.js';
+import checkValidate from '../middleware/checkValidate.middleware';
+import { CreateComment, CreateProduct, PatchProduct } from '../structs';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -41,7 +41,9 @@ router.post(
 
   async (req, res, next) => {
     try {
-      const newImgUrls = req.files.map(
+      const files: Express.Multer.File[] = req.files as Express.Multer.File[];
+      if (!files || files.length === 0) return;
+      const newImgUrls = files.map(
         (file) => 'http://localhost:5500/static/' + file.filename
       );
       const arrayTags = req.body.tags.split(',');
@@ -77,9 +79,10 @@ router.patch(
 
   async (req, res, next) => {
     try {
-      let newImgUrls; // 타입가드 작성 중
-      if (req.files && req.files.length !== 0) {
-        newImgUrls = req.files.map(
+      const files: Express.Multer.File[] = req.files as Express.Multer.File[];
+      let newImgUrls;
+      if (files && files.length !== 0) {
+        newImgUrls = files.map(
           (file) => 'http://localhost:5500/static/' + file.filename
         );
       }
@@ -115,9 +118,13 @@ router.delete('/:productId', async (req, res, next) => {
 // 상품 목록 조회 API
 router.get('/', async (req, res, next) => {
   try {
-    const { sort = 'recent', skip = 0, limit = 10, keyword } = req.query;
+    // const { sort = 'recent', skip = 0, limit = 10, keyword } = req.query;
+    const sort = (req.query.sort || 'recent') as string;
+    const skip = (req.query.skip || '0') as string;
+    const limit = (req.query.limit || '10') as string;
+    const keyword = req.query.keyword as string;
 
-    const where = keyword
+    const where: Prisma.ProductWhereInput = keyword
       ? {
           OR: [
             { name: { contains: keyword } },
@@ -201,7 +208,7 @@ router.get('/:productId', async (req, res, next) => {
       description: product.description,
       createdAt: product.createdAt,
       imgUrls: product.imgUrls,
-      count: product._count.productLikes.length,
+      count: product._count.productLikes,
       comments: product.comments,
       isFavorite,
     };
@@ -234,25 +241,22 @@ router.post('/:productId/comments', async (req, res, next) => {
 
 // 댓글 목록 조회 API - 중고마켓
 // 상품 정보에 댓글 목록이 배열로 있으므로 불필요할 수도
-router.get('/:productId/comments', async (req, res) => {
+router.get('/:productId/comments', async (req, res, next) => {
   try {
     // 전달된 cursor가 있을 경우 생성일을 기준으로 cursor 생성
     const { productId } = req.params;
-    const { cursor, limit = 10 } = req.query;
+    // const { cursor, limit = 10 } = req.query;
+    const cursor = req.query.cursor as string;
+    const limit = req.query.limit as string;
+    const skip = cursor || cursor !== '' ? 1 : 0;
     const cursorOption =
-      cursor || cursor !== ''
-        ? {
-            skip: 1,
-            cursor: {
-              id: cursor,
-            },
-          }
-        : {};
+      cursor || cursor !== '' ? { id: cursor } : { id: undefined };
     const comments = await prisma.comment.findMany({
       where: { productId },
       take: parseInt(limit),
       orderBy: { createdAt: 'desc' },
-      ...cursorOption,
+      cursor: cursorOption,
+      skip,
     });
     // nextCursor 설정
     let nextCursor;
@@ -260,7 +264,7 @@ router.get('/:productId/comments', async (req, res) => {
     if (cursor) {
       const lastComment = comments[comments.length - 1];
       nextCursor = lastComment.id;
-      isLastPage = limit > comments.length;
+      isLastPage = parseInt(limit) > comments.length;
     }
     // 최종적으로 cursor와 comments 전달
     const finalData = isLastPage

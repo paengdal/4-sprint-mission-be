@@ -1,14 +1,17 @@
+import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 
-function checkValidate(req, res, next) {
+function checkValidate(req: Request, res: Response, next: NextFunction) {
   const errors = validationResult(req);
   if (errors.isEmpty()) {
-    return next();
+    next();
+    return;
   }
   console.log(errors);
-  return res
+  res
     .status(400)
     .json({ message: errors.array({ onlyFirstError: true })[0].msg });
+  return;
 }
 
 export default checkValidate;
